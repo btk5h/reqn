@@ -161,7 +161,22 @@ into a URL (e.g. when using a search api).
 
 #### Syntax
 
-`(http|ur(i|l)) (safe|encoded) %input%`
+`(http|ur(i|l)) (safe|encoded|escaped) %input%`
+
+#### Parameters
+
+- `input` (type `texts`) - One or more input texts to encode. 
+
+---
+
+### Expression `JSON Safe Text` => `text`
+
+Converts a text into a text safe for usage in JSON strings. This can be useful for injecting user 
+input into a JSON payload (e.g. when using a search api).
+
+#### Syntax
+
+`json (safe|encoded|escaped) %input%`
 
 #### Parameters
 

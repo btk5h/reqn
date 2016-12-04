@@ -39,28 +39,58 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-public class ExprURLEncode extends SimpleExpression<String> {
+public class ExprJSONEncode extends SimpleExpression<String> {
   
   static {
-    Skript.registerExpression(ExprURLEncode.class, String.class, ExpressionType.SIMPLE,
-        "(http|ur(i|l)) (safe|encoded|escaped) %strings%");
+    Skript.registerExpression(ExprJSONEncode.class, String.class, ExpressionType.SIMPLE,
+        "json (safe|encoded|escaped) %strings%");
   }
   
   private Expression<String> str;
   
   private static String encode(String s) {
-    try {
-      return URLEncoder.encode(s, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
+    StringBuilder sb = new StringBuilder(s.length());
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      switch (c) {
+        case '\\':
+        case '"':
+          sb.append('\\');
+          sb.append(c);
+          break;
+        case '\b':
+          sb.append("\\b");
+          break;
+        case '\t':
+          sb.append("\\t");
+          break;
+        case '\n':
+          sb.append("\\n");
+          break;
+        case '\f':
+          sb.append("\\f");
+          break;
+        case '\r':
+          sb.append("\\r");
+          break;
+        default:
+          if (c < ' ') {
+            String t = "000" + Integer.toHexString(c);
+            sb.append("\\u");
+            sb.append(t.substring(t.length() - 4));
+          } else {
+            sb.append(c);
+          }
+          break;
+      }
     }
-    return "";
+    return sb.toString();
   }
   
   @Override
   protected String[] get(Event e) {
     return Arrays.stream(str.getAll(e))
-        .map(ExprURLEncode::encode)
+        .map(ExprJSONEncode::encode)
         .toArray(String[]::new);
   }
   
