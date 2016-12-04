@@ -1,0 +1,4 @@
+name: Reqn
+version: 1.0.0
+main: com.w00tmast3r.reqn.Reqn
+depend: [Skript]
