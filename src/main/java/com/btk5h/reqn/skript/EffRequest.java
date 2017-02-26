@@ -47,6 +47,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.effects.Delay;
@@ -204,6 +205,11 @@ public class EffRequest extends Effect {
       InputStream response = conn.getErrorStream();
       if (response == null) {
         response = conn.getInputStream();
+      }
+
+      String encoding = conn.getContentEncoding();
+      if (encoding != null && encoding.equals("gzip")) {
+        response = new GZIPInputStream(response);
       }
 
       StringBuilder responseBody = new StringBuilder();
