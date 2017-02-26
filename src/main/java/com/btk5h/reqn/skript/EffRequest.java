@@ -211,9 +211,9 @@ public class EffRequest extends Effect {
 
       String encoding = conn.getContentEncoding();
       if (encoding != null)
-        if (encoding.equals("gzip")) {
+        if (encoding.equalsIgnoreCase("gzip")) {
           response = new GZIPInputStream(response);
-        } else if (encoding.equals("deflate")) {
+        } else if (encoding.equalsIgnoreCase("deflate")) {
           response = new InflaterInputStream(response, new Inflater(true));
         }
 
