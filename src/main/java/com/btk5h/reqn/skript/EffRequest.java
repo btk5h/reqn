@@ -66,8 +66,8 @@ public class EffRequest extends Effect {
   static {
     Skript.registerEffect(EffRequest.class,
         "send [a[n]] [http] [%-string%] [web] request to [the] [url] %string% [with " +
-            "(0¦[the] headers %-strings% [and [the] body %-strings%]" +
-            "|1¦[the] body %-strings% [and [the] headers %-strings%])]");
+            "(0¦[the] header[s] %-strings% [and [the] body %-strings%]" +
+            "|1¦[the] body %-strings% [and [the] header[s] %-strings%])]");
   }
 
   static HttpResponse lastResponse;

@@ -11,8 +11,8 @@ Submits an HTTP request to the given URL. This
 
 #### Syntax
 
-`send [a[n]] [http] [%method%] [web] request to [the] [url] %url% [with ([the] headers
-%headers% [and [the] body %body%]|[the] body %body% [and [the] headers %headers%])]`
+`send [a[n]] [http] [%method%] [web] request to [the] [url] %url% [with ([the] header[s]
+%headers% [and [the] body %body%]|[the] body %body% [and [the] header[s] %headers%])]`
 
 *The last part of the syntax simply allows the header and body to be written in either order
 (e.g. `with the headers and the body` or `with the body and the headers`)*
