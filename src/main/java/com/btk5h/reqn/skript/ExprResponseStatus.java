@@ -23,30 +23,30 @@
  *
  */
 
-package com.w00tmast3r.reqn.skript;
+package com.btk5h.reqn.skript;
 
-import com.w00tmast3r.reqn.HttpResponse;
+import com.btk5h.reqn.HttpResponse;
 
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
-public class ExprResponseBody extends SimplePropertyExpression<HttpResponse, String> {
-  
+public class ExprResponseStatus extends SimplePropertyExpression<HttpResponse, String> {
+
   static {
-    PropertyExpression.register(ExprResponseBody.class, String.class, "[response] bod(y|ies)",
-        "httpresponses");
+    PropertyExpression.register(ExprResponseStatus.class, String.class,
+        "[response] status[(es| line[s])]", "httpresponses");
   }
-  
+
   @Override
   protected String getPropertyName() {
-    return "body";
+    return "status";
   }
-  
+
   @Override
   public String convert(HttpResponse httpResponse) {
-    return httpResponse.getBody();
+    return httpResponse.getStatusLine();
   }
-  
+
   @Override
   public Class<? extends String> getReturnType() {
     return String.class;

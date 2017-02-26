@@ -23,32 +23,62 @@
  *
  */
 
-package com.w00tmast3r.reqn.skript;
+package com.btk5h.reqn.skript;
 
-import com.w00tmast3r.reqn.HttpResponse;
+import com.btk5h.reqn.HttpResponse;
+
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 
 import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.util.Kleenean;
 
-public class ExprResponseMessage extends SimplePropertyExpression<HttpResponse, String> {
-  
+public class ExprResponseHeaders extends SimpleExpression<String> {
+
   static {
-    PropertyExpression.register(ExprResponseMessage.class, String.class,
-        "[response] [status] (message|reason)[s]", "httpresponses");
+    PropertyExpression.register(ExprResponseHeaders.class, String.class, "[response] header[s]",
+        "httpresponses");
   }
-  
+
+  private Expression<HttpResponse> responses;
+
   @Override
-  protected String getPropertyName() {
-    return "status message";
+  protected String[] get(Event e) {
+    return Arrays.stream(responses.getAll(e))
+        .map(HttpResponse::getHeaders)
+        .map(Map::entrySet)
+        .flatMap(Collection::stream)
+        .map(h -> h.getKey() + ": " + h.getValue())
+        .toArray(String[]::new);
   }
-  
+
   @Override
-  public String convert(HttpResponse httpResponse) {
-    return httpResponse.getMessage();
+  public boolean isSingle() {
+    return false;
   }
-  
+
   @Override
   public Class<? extends String> getReturnType() {
     return String.class;
+  }
+
+  @Override
+  public String toString(@Nullable Event e, boolean debug) {
+    return "headers";
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+                      SkriptParser.ParseResult parseResult) {
+    responses = (Expression<HttpResponse>) exprs[0];
+    return true;
   }
 }

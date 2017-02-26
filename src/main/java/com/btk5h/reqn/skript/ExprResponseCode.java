@@ -23,48 +23,32 @@
  *
  */
 
-package com.w00tmast3r.reqn;
+package com.btk5h.reqn.skript;
 
-import org.bukkit.plugin.java.JavaPlugin;
+import com.btk5h.reqn.HttpResponse;
 
-import java.io.IOException;
+import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAddon;
+public class ExprResponseCode extends SimplePropertyExpression<HttpResponse, Integer> {
 
-public final class Reqn extends JavaPlugin {
-  
-  private static Reqn instance;
-  private static SkriptAddon addonInstance;
-  
-  public Reqn() {
-    if (instance == null) {
-      instance = this;
-    } else {
-      throw new IllegalStateException();
-    }
+  static {
+    PropertyExpression.register(ExprResponseCode.class, Integer.class,
+        "[response] [status] code[s]", "httpresponses");
   }
-  
+
   @Override
-  public void onEnable() {
-    try {
-      getAddonInstance().loadClasses("com.w00tmast3r.reqn", "skript");
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  protected String getPropertyName() {
+    return "status code";
   }
-  
-  public static SkriptAddon getAddonInstance() {
-    if (addonInstance == null) {
-      addonInstance = Skript.registerAddon(getInstance());
-    }
-    return addonInstance;
+
+  @Override
+  public Integer convert(HttpResponse httpResponse) {
+    return httpResponse.getCode();
   }
-  
-  public static Reqn getInstance() {
-    if (instance == null) {
-      throw new IllegalStateException();
-    }
-    return instance;
+
+  @Override
+  public Class<? extends Integer> getReturnType() {
+    return Integer.class;
   }
 }

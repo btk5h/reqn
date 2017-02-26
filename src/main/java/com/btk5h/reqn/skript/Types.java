@@ -23,9 +23,9 @@
  *
  */
 
-package com.w00tmast3r.reqn.skript;
+package com.btk5h.reqn.skript;
 
-import com.w00tmast3r.reqn.HttpResponse;
+import com.btk5h.reqn.HttpResponse;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
@@ -47,22 +47,22 @@ public class Types {
           public HttpResponse parse(String s, ParseContext context) {
             return null;
           }
-          
+
           @Override
           public boolean canParse(ParseContext context) {
             return false;
           }
-          
+
           @Override
           public String toString(HttpResponse o, int flags) {
             return o.toString();
           }
-          
+
           @Override
           public String toVariableNameString(HttpResponse o) {
             return o.toString();
           }
-          
+
           @Override
           public String getVariableNamePattern() {
             return ".*";
@@ -79,13 +79,13 @@ public class Types {
             fields.putObject("body", o.getBody());
             return fields;
           }
-          
+
           @Override
           public void deserialize(HttpResponse o, Fields f) throws StreamCorruptedException,
               NotSerializableException {
             throw new UnsupportedOperationException();
           }
-          
+
           @SuppressWarnings("unchecked")
           @Override
           protected HttpResponse deserialize(Fields fields) throws StreamCorruptedException,
@@ -98,12 +98,12 @@ public class Types {
                 fields.getObject("body", String.class)
             );
           }
-          
+
           @Override
           public boolean mustSyncDeserialization() {
             return false;
           }
-          
+
           @Override
           public boolean canBeInstantiated(Class<? extends HttpResponse> c) {
             return false;

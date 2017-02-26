@@ -23,74 +23,69 @@
  *
  */
 
-package com.w00tmast3r.reqn.skript;
-
-import com.w00tmast3r.reqn.HttpResponse;
+package com.btk5h.reqn.skript;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 
-import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-public class ExprResponseSpecificValues extends SimpleExpression<String> {
-  
+public class ExprURLEncode extends SimpleExpression<String> {
+
   static {
-    PropertyExpression.register(ExprResponseSpecificValues.class, String.class,
-        "%string% [response] header[ value][s]", "httpresponses");
+    Skript.registerExpression(ExprURLEncode.class, String.class, ExpressionType.SIMPLE,
+        "(http|ur(i|l)) (safe|encoded|escaped) %strings%");
   }
-  
-  private Expression<String> key;
-  private Expression<HttpResponse> responses;
-  
+
+  private Expression<String> str;
+
+  private static String encode(String s) {
+    try {
+      return URLEncoder.encode(s, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+    return "";
+  }
+
   @Override
   protected String[] get(Event e) {
-    String key = this.key.getSingle(e);
-  
-    if (key == null) {
-      return null;
-    }
-    
-    return Arrays.stream(responses.getAll(e))
-        .map(HttpResponse::getHeaders)
-        .map(h -> h.get(key))
+    return Arrays.stream(str.getAll(e))
+        .map(ExprURLEncode::encode)
         .toArray(String[]::new);
   }
-  
+
   @Override
   public boolean isSingle() {
-    return responses.isSingle();
+    return str.isSingle();
   }
-  
+
   @Override
   public Class<? extends String> getReturnType() {
     return String.class;
   }
-  
+
   @Override
   public String toString(@Nullable Event e, boolean debug) {
-    return "specific header values";
+    return "url encoded text";
   }
-  
+
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
                       SkriptParser.ParseResult parseResult) {
-    switch (matchedPattern) {
-      case 0:
-        key = (Expression<String>) exprs[0];
-        responses = (Expression<HttpResponse>) exprs[1];
-        break;
-      case 1:
-        responses = (Expression<HttpResponse>) exprs[0];
-        key = (Expression<String>) exprs[1];
-        break;
-    }
+    str = (Expression<String>) exprs[0];
     return true;
   }
+
+
 }

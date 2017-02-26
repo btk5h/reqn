@@ -23,9 +23,9 @@
  *
  */
 
-package com.w00tmast3r.reqn.skript;
+package com.btk5h.reqn.skript;
 
-import com.w00tmast3r.reqn.HttpResponse;
+import com.btk5h.reqn.HttpResponse;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -59,21 +59,21 @@ import ch.njol.util.Kleenean;
 import static java.util.stream.Collectors.toMap;
 
 public class EffRequest extends Effect {
-  
+
   static {
     Skript.registerEffect(EffRequest.class,
         "send [a[n]] [http] [%-string%] [web] request to [the] [url] %string% [with " +
             "(0¦[the] headers %-strings% [and [the] body %-strings%]" +
             "|1¦[the] body %-strings% [and [the] headers %-strings%])]");
   }
-  
+
   static HttpResponse lastResponse;
-  
+
   private static final Pattern HEADER = Pattern.compile("(.*?):(.+)");
   private static final String[] EMPTY_STRING_ARRAY = new String[0];
   private static final ReentrantLock SKRIPT_EXECUTION = new ReentrantLock(true);
   private static final Field DELAYED;
-  
+
   static {
     Field _DELAYED = null;
     try {
@@ -86,32 +86,32 @@ public class EffRequest extends Effect {
     }
     DELAYED = _DELAYED;
   }
-  
+
   private static final ExecutorService threadPool =
       Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-  
+
   private Expression<String> method;
   private Expression<String> url;
   private Expression<String> headers;
   private Expression<String> body;
-  
+
   @Override
   protected void execute(Event e) {
     CompletableFuture<HttpResponse> request =
         CompletableFuture.supplyAsync(() -> sendRequest(e), threadPool);
-    
+
     request.whenComplete((resp, err) -> {
       if (err != null) {
         err.printStackTrace();
       }
-      
+
       // Guarantees that the last response will not be changed by another thread
       SKRIPT_EXECUTION.lock();
       try {
         if (resp != null) {
           lastResponse = resp;
         }
-        
+
         if (getNext() != null) {
           TriggerItem.walk(getNext(), e);
           /*
@@ -124,7 +124,7 @@ public class EffRequest extends Effect {
       }
     });
   }
-  
+
   @Override
   protected TriggerItem walk(Event e) {
     debug(e, true);
@@ -132,7 +132,7 @@ public class EffRequest extends Effect {
     execute(e);
     return null;
   }
-  
+
   @SuppressWarnings("unchecked")
   private void delay(Event e) {
     if (DELAYED != null) {
@@ -142,7 +142,7 @@ public class EffRequest extends Effect {
       }
     }
   }
-  
+
   private HttpResponse sendRequest(Event e) {
     String method = null;
     if (this.method != null) {
@@ -157,17 +157,17 @@ public class EffRequest extends Effect {
     if (this.body != null) {
       body = String.join("\n", this.body.getAll(e));
     }
-    
+
     if (url == null) {
       return null;
     }
-    
+
     HttpURLConnection conn = null;
-    
+
     try {
       URL target = new URL(url);
       conn = (HttpURLConnection) target.openConnection();
-      
+
       for (String header : headers) {
         Matcher headerMatcher = HEADER.matcher(header);
         if (headerMatcher.matches()) {
@@ -177,9 +177,9 @@ public class EffRequest extends Effect {
           Skript.warning(String.format("Malformed header during request to %s: %s", url, header));
         }
       }
-      
+
       conn.setUseCaches(false);
-      
+
       // writing to the connection changes GET requests to POST requests, even if explicitly set
       if (method != null && !method.equals("GET")) {
         conn.setRequestProperty("Content-Length", Integer.toString(body.getBytes().length));
@@ -191,7 +191,7 @@ public class EffRequest extends Effect {
       } else if (!body.equals("")) {
         Skript.warning("Get requests should not have a body");
       }
-      
+
       String statusLine = conn.getHeaderField(0);
       Map<String, String> responseHeaders = conn.getHeaderFields().entrySet().stream()
           .filter(h -> h.getKey() != null)
@@ -199,15 +199,15 @@ public class EffRequest extends Effect {
               Map.Entry::getKey,
               entry -> entry.getValue().get(0)
           ));
-      
+
       // use the error stream if it exists
       InputStream response = conn.getErrorStream();
       if (response == null) {
         response = conn.getInputStream();
       }
-      
+
       StringBuilder responseBody = new StringBuilder();
-      
+
       try (BufferedReader br = new BufferedReader(new InputStreamReader(response))) {
         String line;
         while ((line = br.readLine()) != null) {
@@ -215,7 +215,7 @@ public class EffRequest extends Effect {
           responseBody.append("\n");
         }
       }
-      
+
       return new HttpResponse(conn.getResponseCode(), conn.getResponseMessage(), statusLine,
           responseHeaders, responseBody.toString());
     } catch (MalformedURLException err) {
@@ -227,15 +227,15 @@ public class EffRequest extends Effect {
         conn.disconnect();
       }
     }
-    
+
     return null;
   }
-  
+
   @Override
   public String toString(@Nullable Event e, boolean debug) {
     return "send http request";
   }
-  
+
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,

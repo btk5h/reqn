@@ -23,9 +23,9 @@
  *
  */
 
-package com.w00tmast3r.reqn.skript;
+package com.btk5h.reqn.skript;
 
-import com.w00tmast3r.reqn.HttpResponse;
+import com.btk5h.reqn.HttpResponse;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -40,40 +40,41 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-public class ExprResponseKeys extends SimpleExpression<String> {
-  
+public class ExprResponseValues extends SimpleExpression<String> {
+
   static {
-    PropertyExpression.register(ExprResponseKeys.class, String.class, "[response] header key[s]",
+    PropertyExpression.register(ExprResponseValues.class, String.class, "[response] header " +
+            "value[s]",
         "httpresponses");
   }
-  
+
   private Expression<HttpResponse> responses;
-  
+
   @Override
   protected String[] get(Event e) {
     return Arrays.stream(responses.getAll(e))
         .map(HttpResponse::getHeaders)
         .map(Map::entrySet)
         .flatMap(Collection::stream)
-        .map(Map.Entry::getKey)
+        .map(Map.Entry::getValue)
         .toArray(String[]::new);
   }
-  
+
   @Override
   public boolean isSingle() {
     return false;
   }
-  
+
   @Override
   public Class<? extends String> getReturnType() {
     return String.class;
   }
-  
+
   @Override
   public String toString(@Nullable Event e, boolean debug) {
-    return "header keys";
+    return "header values";
   }
-  
+
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,

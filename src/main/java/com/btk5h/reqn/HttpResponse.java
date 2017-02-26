@@ -23,32 +23,55 @@
  *
  */
 
-package com.w00tmast3r.reqn.skript;
+package com.btk5h.reqn;
 
-import com.w00tmast3r.reqn.HttpResponse;
+import java.util.Map;
 
-import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import static java.util.stream.Collectors.*;
 
-public class ExprResponseCode extends SimplePropertyExpression<HttpResponse, Integer> {
-  
-  static {
-    PropertyExpression.register(ExprResponseCode.class, Integer.class,
-        "[response] [status] code[s]", "httpresponses");
+public class HttpResponse {
+
+  private final int code;
+  private final String message;
+  private final String statusLine;
+  private final Map<String, String> headers;
+  private final String body;
+
+  public HttpResponse(int code, String message, String statusLine, Map<String, String> headers,
+                      String body) {
+    this.code = code;
+    this.message = message;
+    this.statusLine = statusLine;
+    this.headers = headers;
+    this.body = body;
   }
-  
-  @Override
-  protected String getPropertyName() {
-    return "status code";
+
+  public int getCode() {
+    return code;
   }
-  
-  @Override
-  public Integer convert(HttpResponse httpResponse) {
-    return httpResponse.getCode();
+
+  public String getMessage() {
+    return message;
   }
-  
+
+  public String getStatusLine() {
+    return statusLine;
+  }
+
+  public Map<String, String> getHeaders() {
+    return headers;
+  }
+
+  public String getBody() {
+    return body;
+  }
+
   @Override
-  public Class<? extends Integer> getReturnType() {
-    return Integer.class;
+  public String toString() {
+    return statusLine + "\n" +
+        headers.entrySet().stream()
+            .map(e -> e.getKey() + ": " + e.getValue())
+            .collect(joining("\n", "", "\n\n"))
+        + body;
   }
 }

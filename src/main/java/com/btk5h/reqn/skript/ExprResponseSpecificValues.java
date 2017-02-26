@@ -23,49 +23,74 @@
  *
  */
 
-package com.w00tmast3r.reqn.skript;
+package com.btk5h.reqn.skript;
 
-import com.w00tmast3r.reqn.HttpResponse;
+import com.btk5h.reqn.HttpResponse;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
+import java.util.Arrays;
+
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-public class ExprLastHttpResponse extends SimpleExpression<HttpResponse> {
-  
+public class ExprResponseSpecificValues extends SimpleExpression<String> {
+
   static {
-    Skript.registerExpression(ExprLastHttpResponse.class, HttpResponse.class,
-        ExpressionType.SIMPLE, "[the] [last[ly]] [received] [http] [web] response");
+    PropertyExpression.register(ExprResponseSpecificValues.class, String.class,
+        "%string% [response] header[ value][s]", "httpresponses");
   }
-  
+
+  private Expression<String> key;
+  private Expression<HttpResponse> responses;
+
   @Override
-  protected HttpResponse[] get(Event e) {
-    return new HttpResponse[] {EffRequest.lastResponse};
+  protected String[] get(Event e) {
+    String key = this.key.getSingle(e);
+
+    if (key == null) {
+      return null;
+    }
+
+    return Arrays.stream(responses.getAll(e))
+        .map(HttpResponse::getHeaders)
+        .map(h -> h.get(key))
+        .toArray(String[]::new);
   }
-  
+
   @Override
   public boolean isSingle() {
-    return true;
+    return responses.isSingle();
   }
-  
+
   @Override
-  public Class<? extends HttpResponse> getReturnType() {
-    return HttpResponse.class;
+  public Class<? extends String> getReturnType() {
+    return String.class;
   }
-  
+
   @Override
   public String toString(@Nullable Event e, boolean debug) {
-    return "last received http response";
+    return "specific header values";
   }
-  
+
+  @SuppressWarnings("unchecked")
   @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+                      SkriptParser.ParseResult parseResult) {
+    switch (matchedPattern) {
+      case 0:
+        key = (Expression<String>) exprs[0];
+        responses = (Expression<HttpResponse>) exprs[1];
+        break;
+      case 1:
+        responses = (Expression<HttpResponse>) exprs[0];
+        key = (Expression<String>) exprs[1];
+        break;
+    }
     return true;
   }
 }

@@ -23,63 +23,49 @@
  *
  */
 
-package com.w00tmast3r.reqn.skript;
+package com.btk5h.reqn.skript;
 
-import com.w00tmast3r.reqn.HttpResponse;
+import com.btk5h.reqn.HttpResponse;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-
-import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-public class ExprResponseValues extends SimpleExpression<String> {
-  
+public class ExprLastHttpResponse extends SimpleExpression<HttpResponse> {
+
   static {
-    PropertyExpression.register(ExprResponseValues.class, String.class, "[response] header " +
-            "value[s]",
-        "httpresponses");
+    Skript.registerExpression(ExprLastHttpResponse.class, HttpResponse.class,
+        ExpressionType.SIMPLE, "[the] [last[ly]] [received] [http] [web] response");
   }
-  
-  private Expression<HttpResponse> responses;
-  
+
   @Override
-  protected String[] get(Event e) {
-    return Arrays.stream(responses.getAll(e))
-        .map(HttpResponse::getHeaders)
-        .map(Map::entrySet)
-        .flatMap(Collection::stream)
-        .map(Map.Entry::getValue)
-        .toArray(String[]::new);
+  protected HttpResponse[] get(Event e) {
+    return new HttpResponse[]{EffRequest.lastResponse};
   }
-  
+
   @Override
   public boolean isSingle() {
-    return false;
+    return true;
   }
-  
+
   @Override
-  public Class<? extends String> getReturnType() {
-    return String.class;
+  public Class<? extends HttpResponse> getReturnType() {
+    return HttpResponse.class;
   }
-  
+
   @Override
   public String toString(@Nullable Event e, boolean debug) {
-    return "header values";
+    return "last received http response";
   }
-  
-  @SuppressWarnings("unchecked")
+
   @Override
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
-    responses = (Expression<HttpResponse>) exprs[0];
+  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
     return true;
   }
 }
