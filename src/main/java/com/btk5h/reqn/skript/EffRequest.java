@@ -48,6 +48,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.effects.Delay;
@@ -208,9 +210,12 @@ public class EffRequest extends Effect {
       }
 
       String encoding = conn.getContentEncoding();
-      if (encoding != null && encoding.equals("gzip")) {
-        response = new GZIPInputStream(response);
-      }
+      if (encoding != null)
+        if (encoding.equals("gzip")) {
+          response = new GZIPInputStream(response);
+        } else if (encoding.equals("deflate")) {
+          response = new InflaterInputStream(response, new Inflater(true));
+        }
 
       StringBuilder responseBody = new StringBuilder();
 
