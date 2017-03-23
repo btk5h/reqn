@@ -117,9 +117,9 @@ combined into a single list with no way to associate each value with its origina
 
 #### Syntax
 
-`[the] [response] header key[s] of %httpresponses%` 
+`[the] [response] header value[s] of %httpresponses%` 
 or
-`%httpresponses%'[s] [response] header key[s]`
+`%httpresponses%'[s] [response] header value[s]`
 
 ---
 
