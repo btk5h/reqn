@@ -32,15 +32,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -179,8 +176,8 @@ public class EffRequest extends Effect {
         conn.setRequestProperty("Content-Length", Integer.toString(body.getBytes().length));
         conn.setRequestMethod(method);
         conn.setDoOutput(true);
-        try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
-          out.writeBytes(body);
+        try (OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream(), StandardCharsets.UTF_8)) {
+          out.write(body);
         }
       } else if (!body.equals("")) {
         Skript.warning("Get requests should not have a body");
