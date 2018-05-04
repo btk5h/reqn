@@ -27,6 +27,8 @@ package com.btk5h.reqn.skript;
 
 import com.btk5h.reqn.HttpResponse;
 
+import com.btk5h.reqn.Reqn;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -100,32 +102,21 @@ public class EffRequest extends Effect {
 
   @Override
   protected void execute(Event e) {
-    CompletableFuture<HttpResponse> request =
-        CompletableFuture.supplyAsync(() -> sendRequest(e), threadPool);
+    CompletableFuture.supplyAsync(() -> sendRequest(e), threadPool)
+        .whenComplete((resp, err) -> {
+          if (err != null) {
+            err.printStackTrace();
+            lastResponse = null;
+            return;
+          }
 
-    request.whenComplete((resp, err) -> {
-      if (err != null) {
-        err.printStackTrace();
-      }
-
-      // Guarantees that the last response will not be changed by another thread
-      SKRIPT_EXECUTION.lock();
-      try {
-        if (resp != null) {
-          lastResponse = resp;
-        }
-
-        if (getNext() != null) {
-          TriggerItem.walk(getNext(), e);
-          /*
-          Bukkit.getScheduler().callSyncMethod(Reqn.getInstance(),
-              () -> TriggerItem.walk(getNext(), e));
-              */
-        }
-      } finally {
-        SKRIPT_EXECUTION.unlock();
-      }
-    });
+          Bukkit.getScheduler().runTask(Reqn.getInstance(), () -> {
+            lastResponse = resp;
+            if (getNext() != null) {
+              TriggerItem.walk(getNext(), e);
+            }
+          });
+        });
   }
 
   @Override
