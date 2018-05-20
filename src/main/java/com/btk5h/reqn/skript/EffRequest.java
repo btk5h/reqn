@@ -139,7 +139,7 @@ public class EffRequest extends Effect {
     if (this.method != null) {
       method = this.method.getSingle(e).toUpperCase();
     }
-    String url = this.url.getSingle(e);
+    String url = this.url.getSingle(e).replace('§', '&');
     String[] headers = EMPTY_STRING_ARRAY;
     if (this.headers != null) {
       headers = this.headers.getAll(e);
