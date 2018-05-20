@@ -1,4 +1,4 @@
 name: Reqn
-version: 1.2.1
+version: 1.2.2
 main: com.btk5h.reqn.Reqn
 depend: [Skript]
