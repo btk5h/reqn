@@ -73,7 +73,6 @@ public class EffRequest extends Effect {
 
   private static final Pattern HEADER = Pattern.compile("(.*?):(.+)");
   private static final String[] EMPTY_STRING_ARRAY = new String[0];
-  private static final ReentrantLock SKRIPT_EXECUTION = new ReentrantLock(true);
   private static final Field DELAYED;
 
   static {
