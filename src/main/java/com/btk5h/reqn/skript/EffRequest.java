@@ -206,7 +206,7 @@ public class EffRequest extends Effect {
 
       StringBuilder responseBody = new StringBuilder();
 
-      try (BufferedReader br = new BufferedReader(new InputStreamReader(response))) {
+      try (BufferedReader br = new BufferedReader(new InputStreamReader(response, StandardCharsets.UTF_8))) {
         String line;
         while ((line = br.readLine()) != null) {
           responseBody.append(line);
