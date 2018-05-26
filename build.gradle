@@ -24,7 +24,7 @@
  */
 
 group 'com.btk5h'
-version '1.2.2'
+version '1.2.3'
 
 apply plugin: 'java'
 
