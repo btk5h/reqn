@@ -154,12 +154,14 @@ public class EffRequest extends Effect {
       body = String.join("\n", this.body.getAll(e));
     }
 
-
     HttpURLConnection conn = null;
 
     try {
       URL target = new URL(url);
       conn = (HttpURLConnection) target.openConnection();
+
+      conn.setRequestProperty("User-Agent", String.format("Reqn/%s (https://github.com/btk5h/reqn)",
+              Reqn.getInstance().getDescription().getVersion()));
 
       for (String header : headers) {
         Matcher headerMatcher = HEADER.matcher(header);
