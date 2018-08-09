@@ -138,7 +138,13 @@ public class EffRequest extends Effect {
     if (this.method != null) {
       method = this.method.getSingle(e).toUpperCase();
     }
-    String url = this.url.getSingle(e).replace('§', '&');
+
+    String url = this.url.getSingle(e);
+    if (url == null) {
+      return null;
+    }
+    url = url.replace('§', '&');
+
     String[] headers = EMPTY_STRING_ARRAY;
     if (this.headers != null) {
       headers = this.headers.getAll(e);
@@ -148,9 +154,6 @@ public class EffRequest extends Effect {
       body = String.join("\n", this.body.getAll(e));
     }
 
-    if (url == null) {
-      return null;
-    }
 
     HttpURLConnection conn = null;
 
