@@ -23,6 +23,8 @@
  *
  */
 
+import org.apache.tools.ant.filters.ReplaceTokens
+
 group 'com.btk5h'
 version '1.2.3'
 
@@ -41,6 +43,12 @@ repositories {
   maven {
     url 'http://maven.njol.ch/repo/'
   }
+}
+
+processResources {
+  inputs.files 'build.gradle'
+  from sourceSets.main.resources.srcDirs
+  filter(ReplaceTokens, tokens: [version: version])
 }
 
 dependencies {
