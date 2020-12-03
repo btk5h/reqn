@@ -105,7 +105,7 @@ public class Types {
           }
 
           @Override
-          public boolean canBeInstantiated(Class<? extends HttpResponse> c) {
+          public boolean canBeInstantiated() {
             return false;
           }
         }));
