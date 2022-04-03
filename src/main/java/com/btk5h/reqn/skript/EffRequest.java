@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -105,8 +106,8 @@ public class EffRequest extends Effect {
     try {
       Field localVariablesField = Variables.class.getDeclaredField("localVariables");
       localVariablesField.setAccessible(true);
-      HashMap<Event, Object> localVariables =
-          (HashMap<Event, Object>) localVariablesField.get(Variables.class);
+      ConcurrentHashMap<Event, Object> localVariables =
+          (ConcurrentHashMap<Event, Object>) localVariablesField.get(Variables.class);
       localVariablesField.setAccessible(false);
 
       Object variablesMap = localVariables.get(e);
