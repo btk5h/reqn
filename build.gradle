@@ -26,22 +26,20 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 group 'com.btk5h'
-version '1.2.3'
+version '1.2.5'
 
 apply plugin: 'java'
 
+compileJava.options.encoding = 'UTF-8'
 sourceCompatibility = 1.8
 
 repositories {
   mavenCentral()
   maven {
-    url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    url 'https://papermc.io/repo/repository/maven-public/'
   }
   maven {
-    url 'https://oss.sonatype.org/content/groups/public/'
-  }
-  maven {
-    url 'http://maven.njol.ch/repo/'
+    url 'http://jitpack.io/'
   }
 }
 
@@ -52,6 +50,7 @@ processResources {
 }
 
 dependencies {
-  compile 'org.spigotmc:spigot-api:1.11-R0.1-SNAPSHOT'
-  compile 'ch.njol:skript:2.2-SNAPSHOT'
+  compileOnly 'org.eclipse.jdt:org.eclipse.jdt.annotation:2.0.0'
+  compileOnly 'com.destroystokyo.paper:paper-api:1.16.4-R0.1-SNAPSHOT'
+  compileOnly 'com.github.SkriptLang:Skript:2.5.1'
 }

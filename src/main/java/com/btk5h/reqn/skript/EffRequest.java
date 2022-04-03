@@ -30,7 +30,6 @@ import com.btk5h.reqn.HttpResponse;
 import com.btk5h.reqn.Reqn;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -38,17 +37,19 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
+import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.effects.Delay;
@@ -57,6 +58,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
+import ch.njol.skript.variables.Variables;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -96,23 +98,39 @@ public class EffRequest extends Effect {
   private Expression<String> headers;
   private Expression<String> body;
 
+  private final HashMap<Event, Object> keptVariables = new HashMap<>();
+
+  @SuppressWarnings("unchecked")
   @Override
   protected void execute(Event e) {
-    CompletableFuture.supplyAsync(() -> sendRequest(e), threadPool)
-        .whenComplete((resp, err) -> {
-          if (err != null) {
-            err.printStackTrace();
-            lastResponse = null;
-            return;
-          }
+    try {
+      Field localVariablesField = Variables.class.getDeclaredField("localVariables");
+      localVariablesField.setAccessible(true);
+      ConcurrentHashMap<Event, Object> localVariables =
+          (ConcurrentHashMap<Event, Object>) localVariablesField.get(Variables.class);
+      localVariablesField.setAccessible(false);
 
-          Bukkit.getScheduler().runTask(Reqn.getInstance(), () -> {
-            lastResponse = resp;
-            if (getNext() != null) {
-              TriggerItem.walk(getNext(), e);
+      Object variablesMap = localVariables.get(e);
+      keptVariables.put(e, variablesMap);
+
+      CompletableFuture.supplyAsync(() -> sendRequest(e), threadPool)
+          .whenComplete((resp, err) -> {
+            if (err != null) {
+              err.printStackTrace();
+              lastResponse = null;
+              return;
             }
+
+            Bukkit.getScheduler().runTask(Reqn.getInstance(), () -> {
+              lastResponse = resp;
+              if (getNext() != null) {
+                TriggerItem.walk(getNext(), e);
+              }
+            });
           });
-        });
+    } catch (NoSuchFieldException | IllegalAccessException err) {
+      err.printStackTrace();
+    }
   }
 
   @Override
@@ -134,6 +152,11 @@ public class EffRequest extends Effect {
   }
 
   private HttpResponse sendRequest(Event e) {
+
+    Object variablesMap = keptVariables.get(e);
+    keptVariables.remove(e);
+    Variables.setLocalVariables(e, variablesMap);
+
     String method = null;
     if (this.method != null) {
       method = this.method.getSingle(e).toUpperCase();
@@ -141,6 +164,7 @@ public class EffRequest extends Effect {
 
     String url = this.url.getSingle(e);
     if (url == null) {
+      Variables.removeLocals(e);
       return null;
     }
     url = url.replace('§', '&');
@@ -161,7 +185,7 @@ public class EffRequest extends Effect {
       conn = (HttpURLConnection) target.openConnection();
 
       conn.setRequestProperty("User-Agent", String.format("Reqn/%s (https://github.com/btk5h/reqn)",
-              Reqn.getInstance().getDescription().getVersion()));
+          Reqn.getInstance().getDescription().getVersion()));
 
       for (String header : headers) {
         Matcher headerMatcher = HEADER.matcher(header);
@@ -219,6 +243,7 @@ public class EffRequest extends Effect {
         }
       }
 
+      Variables.removeLocals(e);
       return new HttpResponse(conn.getResponseCode(), conn.getResponseMessage(), statusLine,
           responseHeaders, responseBody.toString());
     } catch (MalformedURLException err) {
@@ -230,7 +255,7 @@ public class EffRequest extends Effect {
         conn.disconnect();
       }
     }
-
+    Variables.removeLocals(e);
     return null;
   }
 
